@@ -1,6 +1,7 @@
 import { createInterface } from "readline";
-import { getCommands, CLICommand } from "./commands.js"
+import { getCommands } from "./commands.js"
 import { rootCertificates } from "tls";
+import { CLICommand } from './command.js'
 
 const commands = getCommands();
 
@@ -30,14 +31,20 @@ export function startREPL() {
         }
 
         const commandName = words[0];
+        const cmd = commands[commandName];
 
-        if (!(commandName in commands)) {
-            console.log("Unknown command")
+        if (!cmd) {
+            console.log("Unknown command");
+            console.log();
             rl.prompt();
             return;
         }
 
-        await commands[commandName].callback(commands);
+        try {
+            cmd.callback(commands);
+        } catch (e) {
+            console.log(e);
+        }
 
         rl.prompt();
     });

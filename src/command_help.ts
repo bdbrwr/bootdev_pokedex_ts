@@ -1,11 +1,13 @@
-import { getCommands, CLICommand } from "./commands.js"
+import { getCommands } from "./commands.js"
 
 const commands = getCommands()
 
 export function commandHelp() {
-    console.log("Usage: \n")
+    console.log()
+    console.log("Usage:")
 
     for (const command of Object.values(commands)) {
-        console.log(`${command.name}: ${command.description}`)
+        console.log(`${command.name}: ${command.description}`);
     }
+    console.log();
 }
