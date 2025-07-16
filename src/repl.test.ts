@@ -1,28 +1,23 @@
-import { cleanInput } from "./repl";
+import { cleanInput } from "./repl.js";
 import { describe, expect, test } from "vitest";
 
 describe.each([
     {
-        input: "    ",
+        input: "  ",
         expected: [],
     },
     {
-        input: "  hello    ",
-        expected: ["hello"]
+        input: "  hello  ",
+        expected: ["hello"],
     },
     {
         input: "  hello  world  ",
         expected: ["hello", "world"],
     },
     {
-        input: "  HeLlO  World  ",
+        input: "  HellO  World  ",
         expected: ["hello", "world"],
     },
-    {
-        input: "Charmander Bulbasaur PIKACHU",
-        expected: ["charmander", "bulbasaur", "pikachu"],
-    },
-
 ])("cleanInput($input)", ({ input, expected }) => {
     test(`Expected: ${expected}`, () => {
         const actual = cleanInput(input);

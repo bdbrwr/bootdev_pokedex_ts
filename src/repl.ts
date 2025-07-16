@@ -1,9 +1,36 @@
-import { createInterface } from "readline";
-import { getCommands } from "./commands.js"
-import { rootCertificates } from "tls";
-import { CLICommand } from './command.js'
+import { State } from "./state.js";
 
-const commands = getCommands();
+export async function startREPL(state: State) {
+    state.readline.prompt();
+
+    state.readline.on("line", async (input) => {
+        const words = cleanInput(input);
+        if (words.length === 0) {
+            state.readline.prompt();
+            return;
+        }
+
+        const commandName = words[0];
+        const args = words.slice(1);
+
+        const cmd = state.commands[commandName];
+        if (!cmd) {
+            console.log(
+                `Unknown command: "${commandName}". Type "help" for a list of commands.`,
+            );
+            state.readline.prompt();
+            return;
+        }
+
+        try {
+            await cmd.callback(state, ...args);
+        } catch (e) {
+            console.log((e as Error).message);
+        }
+
+        state.readline.prompt();
+    });
+}
 
 export function cleanInput(input: string): string[] {
     return input
@@ -11,41 +38,4 @@ export function cleanInput(input: string): string[] {
         .trim()
         .split(" ")
         .filter((word) => word !== "");
-}
-
-export function startREPL() {
-    const rl = createInterface({
-        input: process.stdin,
-        output: process.stdout,
-        prompt: "pokedex > ",
-    });
-
-    console.log("Welcome to the Pokedex!")
-    rl.prompt();
-
-    rl.on("line", async (input) => {
-        const words = cleanInput(input);
-        if (words.length === 0) {
-            rl.prompt();
-            return;
-        }
-
-        const commandName = words[0];
-        const cmd = commands[commandName];
-
-        if (!cmd) {
-            console.log("Unknown command");
-            console.log();
-            rl.prompt();
-            return;
-        }
-
-        try {
-            cmd.callback(commands);
-        } catch (e) {
-            console.log(e);
-        }
-
-        rl.prompt();
-    });
 }
